@@ -11,14 +11,18 @@ const PreviewRequest = () => {
 
   useEffect(() => {
     if (context?.resortRequests.length === 0) {
+      console.log("Fetching resorts");
       context?.getResortRequests();
     }
+    console.log(context?.resortRequests);
+    console.log(id);
     const request = context?.resortRequests.find((req) => req._id === id);
     if (request) {
       setResort(request.resort);
     }
+    console.log(request);
     // eslint-disable-next-line
-  }, []);
+  }, [context?.resortRequests]);
 
   return (
     <div>

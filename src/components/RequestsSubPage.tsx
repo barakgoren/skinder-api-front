@@ -39,7 +39,7 @@ interface MappedSuggestion {
   resortName: string;
   countryCode: string;
   createdAt: string;
-  status: boolean;
+  status: number;
 }
 
 const RequestsSubPage: React.FC<{}> = (props) => {
@@ -89,6 +89,8 @@ const RequestsSubPage: React.FC<{}> = (props) => {
         };
       });
       setResortRequests(mappedResortRequests);
+      // TODO: Thid practice is not recommended, should set the state in the context instead of making 2 calls
+      context?.getResortRequests();
     } catch (error) {
       console.error(error);
     } finally {
@@ -133,12 +135,22 @@ const RequestsSubPage: React.FC<{}> = (props) => {
     {
       title: "Status",
       dataIndex: "status",
-      render: (isApproved: boolean) => {
+      render: (isApproved: number) => {
+        let color = "gold";
+        let status = "Pending";
+        if (isApproved === 1) {
+          color = "green";
+          status = "Approved";
+        } else if (isApproved === 2) {
+          color = "red";
+          status = "Rejected";
+        } else if (isApproved === 3) {
+          color = "purple";
+          status = "Deleted";
+        }
         return (
           <div>
-            <Tag color={isApproved ? "green" : "orange"}>
-              {isApproved ? "Approved" : "Pending"}
-            </Tag>
+            <Tag color={color}>{status}</Tag>
           </div>
         );
       },
@@ -170,7 +182,7 @@ const RequestsSubPage: React.FC<{}> = (props) => {
               <Tooltip title="Approve suggestion">
                 <Button
                   icon={<MdDone />}
-                  disabled={obj.status}
+                  disabled={obj.status > 0}
                   onClick={() => handleApprove(obj._id)}
                 />
               </Tooltip>
@@ -179,7 +191,7 @@ const RequestsSubPage: React.FC<{}> = (props) => {
               <Button
                 type="text"
                 icon={<EditOutlined />}
-                disabled={obj.status}
+                disabled={obj.status > 0}
               />
             </Link>
             <Tooltip title="Preview">
