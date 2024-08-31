@@ -8,7 +8,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 const { Content, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
-
+// TODO: Add another item interface
 function getItem(
   label: React.ReactNode,
   key: React.Key,
@@ -134,7 +134,6 @@ const App: React.FC = () => {
             onClick={(e) => onSelectKey(e.key)}
             items={items}
             selectedKeys={[selectedKey]}
-            // TODO: Check monday integration
           />
         </Sider>
         <Layout
@@ -146,7 +145,6 @@ const App: React.FC = () => {
             <Outlet />
           </Content>
         </Layout>
-        {/* TODO: Check monday integration2 */}
       </Layout>
     </ConfigProvider>
   );
