@@ -147,6 +147,20 @@
   ;
 }
 
+.scroll-up {
+  
+  animation: scrollUp 1s forwards;
+
+}
+
+@keyframes scrollUp {
+  0% {
+    height: 30vh;
+  }
+  100% {
+    height: 10vh;
+  }
+}
 
 @keyframes moveRight {
   0% {

@@ -6,8 +6,15 @@ import Flag from "react-world-flags";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { PlusOutlined } from "@ant-design/icons";
 import { serverUrl } from "../server";
+import { Resort } from "../models/models";
+import { FaSkiing } from "react-icons/fa";
 
-const EditResort = () => {
+interface EditProps {
+  resort?: Resort;
+  handleEdit?: (formData: FormData) => void;
+}
+
+const EditResort: React.FC<EditProps> = (props) => {
   const nav = useNavigate();
   const context = useContext(AppContext);
   const { id } = useParams();
@@ -19,7 +26,8 @@ const EditResort = () => {
   const [topElevation, setTopElevation] = useState<number | null>(null);
   const [baseElevation, setBaseElevation] = useState<number | null>(null);
   const [description, setDescription] = useState<string>("");
-  const resort = context?.resorts.find((resort) => resort._id === id);
+  const resort =
+    props.resort || context?.resorts.find((resort) => resort._id === id);
 
   useEffect(() => {
     if (resort) {
@@ -30,7 +38,7 @@ const EditResort = () => {
     }
   }, [resort]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     context?.setLoading(true);
     const formData = new FormData();
     formData.append("name", name);
@@ -48,6 +56,10 @@ const EditResort = () => {
     for (let [key, value] of formData.entries()) {
       console.log(key, value);
     }
+    props.handleEdit ? props.handleEdit(formData) : handleCreate(formData);
+  };
+
+  const handleCreate = async (formData: FormData) => {
     try {
       const response = await fetch(`${serverUrl}/api/resorts/${id}`, {
         method: "PATCH",
@@ -160,12 +172,19 @@ const EditResort = () => {
                   alt="cover"
                   className=" rounded-lg h-[100%] w-[100%] object-contain"
                 />
-              ) : (
+              ) : resort?.coverImage ? (
                 <img
-                  src={`${serverUrl}/api/images/resortsCovers/${resort?.coverImage}`}
+                  src={`${serverUrl}/api/images/resortscovers/${resort?.coverImage}`}
                   alt="cover"
                   className=" rounded-lg h-[100%] w-[100%] object-contain"
                 />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center">
+                  <div className="text-center">
+                    <PlusOutlined className="text-xl" />
+                    <p className="text-sm">Add Cover</p>
+                  </div>
+                </div>
               )}
             </label>
             <input
@@ -190,12 +209,19 @@ const EditResort = () => {
                   alt="icon"
                   className=" rounded-lg h-[100%] w-[100%] object-contain"
                 />
-              ) : (
+              ) : resort?.iconImage ? (
                 <img
                   src={`${serverUrl}/api/images/resortsIcons/${resort?.iconImage}`}
                   alt="icon"
                   className=" rounded-lg h-[100%] w-[100%] object-contain"
                 />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center">
+                  <div className="text-center">
+                    <PlusOutlined className="text-xl" />
+                    <p className="text-sm">Add Icon</p>
+                  </div>
+                </div>
               )}
             </label>
             <input

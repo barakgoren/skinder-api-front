@@ -7,7 +7,7 @@ import {
 } from "react";
 import { serverUrl } from "../server";
 import axios from "axios";
-import { Resort, User } from "../models/models";
+import { Resort, ResortRequest, User } from "../models/models";
 
 // Define the shape of the context
 interface AppContextType {
@@ -32,6 +32,8 @@ interface AppContextType {
   getAllUsers: () => void;
   getAllResorts: () => void;
   logout: () => void;
+  resortRequests: ResortRequest[];
+  getResortRequests: () => void;
 }
 
 // Create the context with the defined type, providing a default value
@@ -55,6 +57,7 @@ export default function ContextProvider({ children }: ContextProviderProps) {
   });
   const [open, setOpen] = useState<boolean | undefined>(false);
   const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [resortRequests, setResortRequests] = useState<ResortRequest[]>([]);
 
   useEffect(() => {
     filterResorts();
@@ -162,6 +165,20 @@ export default function ContextProvider({ children }: ContextProviderProps) {
     }
   }
 
+  const getResortRequests = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${serverUrl}/api/request`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setResortRequests(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const contextValue: AppContextType = {
     user,
     loading,
@@ -178,6 +195,8 @@ export default function ContextProvider({ children }: ContextProviderProps) {
     getAllUsers,
     getAllResorts,
     logout,
+    resortRequests,
+    getResortRequests,
   };
 
   return (

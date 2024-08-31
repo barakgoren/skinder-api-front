@@ -1,11 +1,8 @@
-import { Button, Input, Select, Upload } from "antd";
+import { Button, Input, Select } from "antd";
 import React, { useContext, useState } from "react";
 import Flag from "react-world-flags";
 import { serverUrl } from "../server";
 import { AppContext } from "../context/Context";
-import type { GetProp, UploadFile, UploadProps } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import { RcFile } from "antd/es/upload";
 
 interface Country {
   value: string;

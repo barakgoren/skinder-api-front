@@ -16,6 +16,14 @@ interface Resort {
   updatedAt: Date;
 }
 
+interface ResortRequest {
+  _id: string;
+  createdBy: User;
+  isApproved: boolean;
+  resort: Resort;
+  createdAt: Date;
+}
+
 interface Item {
   title: string;
   url: string;
@@ -38,4 +46,4 @@ interface Admin extends User {
   level: number;
 }
 
-export type { Resort, Item, User, Admin };
+export type { Resort, Item, User, Admin, ResortRequest };

@@ -26,8 +26,6 @@ interface Item {
   url: string;
   icon: JSX.Element;
 }
-
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
 const pages2: Item[] = [
   { title: "Home", url: "/", icon: <FaHome /> },
   { title: "Resorts", url: "/resorts", icon: <FaMountain /> },
@@ -197,9 +195,12 @@ function ResponsiveAppBar() {
               }}
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
+              onClick={() => handleCloseUserMenu()}
             >
               <MenuItem onClick={() => nav("/profile")}>Profile</MenuItem>
-              <MenuItem onClick={() => nav("/admin/users")}>Admin Panel</MenuItem>
+              <MenuItem onClick={() => nav("/admin/users")}>
+                Admin Panel
+              </MenuItem>
               <MenuItem
                 onClick={() => {
                   context?.logout();

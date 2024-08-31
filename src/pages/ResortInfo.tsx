@@ -1,27 +1,45 @@
 import React, { useContext, useEffect } from "react";
 import { AppContext } from "../context/Context";
 import { useParams } from "react-router-dom";
-import { EditableHeading } from "monday-ui-react-core";
 import "monday-ui-react-core/tokens";
 import { serverUrl } from "../server";
+import { FaRegEye } from "react-icons/fa";
 import { Resort } from "../models/models";
-import { FaEye, FaRegEye } from "react-icons/fa";
+import { Avatar } from "antd";
+import { UserOutlined } from "@ant-design/icons";
 
-const ResortInfo = () => {
+const ResortInfo: React.FC<{ resort?: Resort }> = (props) => {
   const context = useContext(AppContext);
   // Collect params from the URL
   const { id } = useParams<{ id: string }>();
-  const resort = context?.resorts.find((resort) => resort._id === id);
+  const resort =
+    props.resort || context?.resorts.find((resort) => resort._id === id);
 
   useEffect(() => {
     if (context?.resorts.length === 0) {
       context?.getAllResorts();
     }
+    console.log(resort);
     // eslint-disable-next-line
   }, []);
   return (
     <div>
       <div className="relative w-full h-64 -mb-20 z-0">
+        <div className="absolute w-full h-full top-0">
+          <div className="float-start m-6 border border-black rounded-lg p-1 bg-opacity-50 backdrop-blur-md hover:cursor-pointer">
+            <h1 className="font-poppins text-xs text-teal-950">
+              Suggested By:
+            </h1>
+            <div className="flex items-center mt-1 px-4 py-1">
+              <Avatar size="small" icon={<UserOutlined />} />
+              {props.resort ? (
+                <span className="ml-2"></span>
+              ) : (
+                <span className="ml-2">{resort?.createdBy.username}</span>
+              )}
+            </div>
+          </div>
+        </div>
         <img
           src={`${serverUrl}/api/images/resortsCovers/${resort?.coverImage}`}
           alt="cover"
@@ -30,7 +48,7 @@ const ResortInfo = () => {
         <div className="absolute w-[100%] h-[20%] top-[81%] bg-gradient-to-t from-white via-white to-transparent"></div>
       </div>
       <div className="relative min-h-[100vh] md:px-16 px-6 z-20">
-        <div>
+        <div className="flex items-center">
           <div className="md:w-[17%] w-[30%] md:h-36 h-24">
             <img
               src={`${serverUrl}/api/images/resortsIcons/${resort?.iconImage}`}

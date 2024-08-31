@@ -2,11 +2,8 @@ import React, { useContext, useEffect, useState } from "react";
 import type { MenuProps } from "antd";
 import { Avatar, ConfigProvider, Layout, Menu } from "antd";
 import { FaMountain, FaTasks, FaUser } from "react-icons/fa";
-import UsersSubPage from "../components/UsersSubPage";
-import ResortsSubPage from "../components/ResortsSubPage";
 import { AppContext } from "../context/Context";
-import { Outlet, useNavigate } from "react-router-dom";
-import RequestsSubPage from "../components/RequestsSubPage";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const { Content, Sider } = Layout;
 
@@ -34,10 +31,11 @@ const items: MenuItem[] = [
 
 const App: React.FC = () => {
   const context = useContext(AppContext);
+  const location = useLocation();
   const nav = useNavigate();
-  const [currentComponent, setCurrentComponent] = useState(<UsersSubPage />);
   const [collapsed, setCollapsed] = useState(false);
   const [loadingPage, setLoadingPage] = useState(true);
+  const [selectedKey, setSelectedKey] = useState("1");
 
   useEffect(() => {
     if (context?.user) {
@@ -50,6 +48,24 @@ const App: React.FC = () => {
     }
     // eslint-disable-next-line
   }, [context?.user]);
+
+  useEffect(() => {
+    // Set the selected menu item based on the current path
+    switch (location.pathname) {
+      case "/admin/users":
+        setSelectedKey("1");
+        break;
+      case "/admin/resorts":
+        setSelectedKey("2");
+        break;
+      case "/admin/requests":
+        setSelectedKey("3");
+        break;
+      default:
+        setSelectedKey("1");
+        break;
+    }
+  }, [location.pathname]);
 
   const onSelectKey = (key: string) => {
     switch (key) {
@@ -85,9 +101,7 @@ const App: React.FC = () => {
         },
       }}
     >
-      <Layout
-        className="center-radial-bg"
-      >
+      <Layout className="center-radial-bg">
         <Sider
           style={{
             minHeight: "100vh",
@@ -119,6 +133,7 @@ const App: React.FC = () => {
             mode="inline"
             onClick={(e) => onSelectKey(e.key)}
             items={items}
+            selectedKeys={[selectedKey]}
           />
         </Sider>
         <Layout

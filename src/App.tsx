@@ -16,6 +16,9 @@ import RequestsSubPage from "./components/RequestsSubPage";
 import ResortsSubPage from "./components/ResortsSubPage";
 import EditUser from "./pages/EditUser";
 import EditResort from "./pages/EditResort";
+import Request from "./pages/Request";
+import EditRequest from "./pages/EditRequest";
+import PreviewRequest from "./pages/PreviewRequest";
 
 function App() {
   return (
@@ -26,12 +29,18 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/resorts" element={<Resorts />} />
           <Route path="/resorts/:id" element={<ResortInfo />} />
+          <Route path="/request" element={<Request />} />
           <Route path="/about" element={<About />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="/admin/users" element={<UsersSubPage />} />
             <Route path="/admin/requests" element={<RequestsSubPage />} />
+            <Route path="/admin/request/edit/:id" element={<EditRequest />} />
+            <Route
+              path="/admin/request/preview/:id"
+              element={<PreviewRequest />}
+            />
             <Route path="/admin/resorts" element={<ResortsSubPage />} />
             <Route path="/admin/resorts/edit/:id" element={<EditResort />} />
             <Route path="/admin/edit-user/:id" element={<EditUser />} />

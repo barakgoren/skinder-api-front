@@ -17,6 +17,7 @@ import {
   UserDeleteOutlined,
   EditOutlined,
   DeleteOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import { Input } from "antd";
 import type { SearchProps } from "antd/es/input/Search";
@@ -27,7 +28,7 @@ import { Resort, User } from "../models/models";
 import { serverUrl } from "../server";
 import Flag from "react-world-flags";
 import { FaSkiing } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 type TableRowSelection<T extends object = object> =
@@ -41,6 +42,7 @@ const ResortsSubPage: React.FC<{}> = (props) => {
   };
   const searchInputRef = useRef<InputRef | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -73,7 +75,7 @@ const ResortsSubPage: React.FC<{}> = (props) => {
   };
 
   const handleDelete = async (id: string) => {
-    context?.setLoading(true);
+    setLoading(true);
     try {
       const response = await axios.delete(`${serverUrl}/api/resorts/${id}`, {
         headers: {
@@ -89,7 +91,7 @@ const ResortsSubPage: React.FC<{}> = (props) => {
     } catch (error) {
       console.error(error);
     } finally {
-      context?.setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -140,7 +142,9 @@ const ResortsSubPage: React.FC<{}> = (props) => {
               src={`${serverUrl}/api/images/resortscovers/banskocover.jpg`}
               size={"small"}
             />
-            <span className="ms-2">{createdBy.username}</span>
+            <span className="ms-2">
+              {createdBy?.username}
+            </span>
           </div>
         );
       },
@@ -225,6 +229,18 @@ const ResortsSubPage: React.FC<{}> = (props) => {
         </div>
         <div className="flex justify-end">
           <Tooltip title="Add new user">
+            <Button
+              type="text"
+              size="large"
+              icon={<SyncOutlined />}
+              onClick={async () => {
+                setLoading(true);
+                await context?.getAllResorts();
+                setLoading(false);
+              }}
+            />
+          </Tooltip>
+          <Tooltip title="Add new user">
             <Button type="text" size="large" icon={<UserAddOutlined />} />
           </Tooltip>
           <Tooltip title="Display as list or blocks">
@@ -261,7 +277,7 @@ const ResortsSubPage: React.FC<{}> = (props) => {
           pagination={{ pageSize: 10 }}
           size="small"
           rowSelection={rowSelection}
-          loading={context?.loading}
+          loading={loading}
           rowKey={(record) => record._id}
         />
       </div>

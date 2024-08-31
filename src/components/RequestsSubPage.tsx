@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Button,
   ConfigProvider,
   Divider,
@@ -9,7 +8,6 @@ import {
   TableProps,
   Tag,
   Tooltip,
-  Typography,
 } from "antd";
 import React, { useRef, useEffect, useContext, useState } from "react";
 import {
@@ -17,17 +15,20 @@ import {
   UserAddOutlined,
   UserDeleteOutlined,
   EditOutlined,
+  ExpandOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import { Input } from "antd";
 import type { SearchProps } from "antd/es/input/Search";
 import { InputRef } from "antd/es/input";
 import { LiaUserTieSolid } from "react-icons/lia";
 import { AppContext } from "../context/Context";
-import { Resort, User } from "../models/models";
-import { serverUrl } from "../server";
 import Flag from "react-world-flags";
-import { FaSkiing } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { MdDone } from "react-icons/md";
+import { serverUrl } from "../server";
+import axios from "axios";
+import { get } from "http";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
@@ -38,7 +39,7 @@ interface MappedSuggestion {
   resortName: string;
   countryCode: string;
   createdAt: string;
-  status: string;
+  status: boolean;
 }
 
 const RequestsSubPage: React.FC<{}> = (props) => {
@@ -48,6 +49,8 @@ const RequestsSubPage: React.FC<{}> = (props) => {
   };
   const searchInputRef = useRef<InputRef | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [resortRequests, setResortRequests] = useState<MappedSuggestion[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -63,8 +66,35 @@ const RequestsSubPage: React.FC<{}> = (props) => {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line
+    getResortRequests();
   }, []);
+
+  const getResortRequests = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${serverUrl}/api/request`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const mappedResortRequests = response.data.map((request: any) => {
+        return {
+          _id: request._id,
+          createdBy: request.createdBy.username,
+          resortName: request.resort.name,
+          countryCode: request.resort.countryCode,
+          createdAt: new Date(request.createdAt).toDateString(),
+          status: request.isApproved,
+        };
+      });
+      setResortRequests(mappedResortRequests);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     setSelectedRowKeys(newSelectedRowKeys);
@@ -90,7 +120,7 @@ const RequestsSubPage: React.FC<{}> = (props) => {
       render: (countryCode: string) => {
         return (
           <div className="flex items-center">
-            <Flag code={countryCode} className="h-4 w-7 me-1"/>
+            <Flag code={countryCode} className="h-4 w-7 me-1" />
             {countryCode}
           </div>
         );
@@ -103,14 +133,11 @@ const RequestsSubPage: React.FC<{}> = (props) => {
     {
       title: "Status",
       dataIndex: "status",
-      render: (status: string) => {
+      render: (isApproved: boolean) => {
         return (
           <div>
-            <Tag
-              color={status === "Pending" ? "orange" : "green"}
-              className="text-white"
-            >
-              {status}
+            <Tag color={isApproved ? "green" : "orange"}>
+              {isApproved ? "Approved" : "Pending"}
             </Tag>
           </div>
         );
@@ -119,40 +146,72 @@ const RequestsSubPage: React.FC<{}> = (props) => {
     {
       title: "Actions",
       dataIndex: "actions",
-      render: () => {
+      render: (item, obj) => {
         return (
-          <div>
-            <Typography.Link>
-              <Link to="/">Edit</Link>
-            </Typography.Link>
-            <Divider type="vertical" className="bg-gray-600" />
-            <Typography.Link>
-              <span className="text-red-400">Delete</span>
-            </Typography.Link>
+          <div className="flex gap-1">
+            <ConfigProvider
+              theme={{
+                components: {
+                  Button: {
+                    defaultBg: "#009900",
+                    defaultColor: "#fff",
+                    defaultActiveBg: "#006600",
+                    defaultActiveColor: "#fff",
+                    defaultHoverBg: "#008000",
+                    defaultHoverColor: "#fff",
+                    defaultBorderColor: "#009900",
+                    colorBorder: "#009900",
+                    defaultActiveBorderColor: "#006600",
+                    defaultHoverBorderColor: "#008000",
+                  },
+                },
+              }}
+            >
+              <Tooltip title="Approve suggestion">
+                <Button
+                  icon={<MdDone />}
+                  disabled={obj.status}
+                  onClick={() => handleApprove(obj._id)}
+                />
+              </Tooltip>
+            </ConfigProvider>
+            <Link to={`/admin/request/edit/${obj._id}`}>
+              <Button
+                type="text"
+                icon={<EditOutlined />}
+                disabled={obj.status}
+              />
+            </Link>
+            <Tooltip title="Preview">
+              <Link to={`/admin/request/preview/${obj._id}`}>
+                <Button type="text" icon={<ExpandOutlined />} />
+              </Link>
+            </Tooltip>
           </div>
         );
       },
     },
   ];
 
-  const dataSource: MappedSuggestion[] = [
-    {
-      _id: "1",
-      createdBy: "John Doe",
-      resortName: "Resort 1",
-      countryCode: "US",
-      createdAt: "2021-10-10",
-      status: "Pending",
-    },
-    {
-      _id: "2",
-      createdBy: "Jane Doe",
-      resortName: "Resort 2",
-      countryCode: "CA",
-      createdAt: "2021-10-10",
-      status: "Approved",
-    },
-  ];
+  const handleApprove = async (id: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${serverUrl}/api/request/approve/${id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        getResortRequests();
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="h-[100%] py-14">
@@ -205,6 +264,14 @@ const RequestsSubPage: React.FC<{}> = (props) => {
           </div>
         </div>
         <div className="flex justify-end">
+          <Tooltip title="Refresh">
+            <Button
+              type="text"
+              size="large"
+              icon={<SyncOutlined />}
+              onClick={getResortRequests}
+            />
+          </Tooltip>
           <Tooltip title="Add new user">
             <Button type="text" size="large" icon={<UserAddOutlined />} />
           </Tooltip>
@@ -237,12 +304,13 @@ const RequestsSubPage: React.FC<{}> = (props) => {
       <div className="bg-white shadow-xl rounded-xl px-4 py-3 mt-2">
         <Table
           columns={columns}
-          dataSource={dataSource}
+          dataSource={resortRequests}
           scroll={{ y: "60vh" }}
           pagination={{ pageSize: 10 }}
           size="small"
           rowSelection={rowSelection}
           rowKey={(record) => record._id}
+          loading={loading}
         />
       </div>
     </div>

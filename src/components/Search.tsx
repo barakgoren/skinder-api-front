@@ -2,10 +2,8 @@ import React, { useEffect, useState, useContext } from "react";
 import { AutoComplete, Button, Divider, Select } from "antd";
 import { FilterFilled } from "@ant-design/icons";
 import Flag from "react-world-flags";
-import AddResortForm from "./AddResortForm";
 import { AppContext } from "../context/Context";
 import "react-spring-bottom-sheet/dist/style.css";
-import Vaul from "./Vaul";
 import { serverUrl } from "../server";
 import { FaSkiing } from "react-icons/fa";
 
@@ -131,9 +129,6 @@ const Search: React.FC = () => {
             )}
           />
         </div>
-        <Vaul>
-          <AddResortForm countries={countryList} />
-        </Vaul>
         <Button type="text" icon={<FilterFilled />} />
       </div>
     </div>
