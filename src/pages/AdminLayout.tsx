@@ -134,6 +134,7 @@ const App: React.FC = () => {
             onClick={(e) => onSelectKey(e.key)}
             items={items}
             selectedKeys={[selectedKey]}
+            // TODO: Check monday integration
           />
         </Sider>
         <Layout
@@ -145,6 +146,7 @@ const App: React.FC = () => {
             <Outlet />
           </Content>
         </Layout>
+        {/* TODO: Check monday integration2 */}
       </Layout>
     </ConfigProvider>
   );
